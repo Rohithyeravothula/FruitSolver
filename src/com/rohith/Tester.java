@@ -81,9 +81,25 @@ public class Tester {
         System.out.println(points);
     }
 
+    public void test_alpha_beta(){
+        Input input = fs.readInput();
+        fs.alpha_beta(input, 1);
+    }
+
+    // not properly written
+    @Deprecated
+    public void test_checkIfConnected(){
+        Input input = fs.readInput();
+        Point p1 = new Point(3,4), p2 = new Point(4,4);
+        Boolean ans = fs.checkIfConnected(input.board, input.size, p1, p2);
+        System.out.println(ans.toString() + " " + p1.toString() + " " + p2.toString());
+    }
+
     public static void main(String[] args){
         Tester t = new Tester();
-        t.test_getBranchPoints();
+//        t.test_checkIfConnected();
+        t.test_alpha_beta();
+//        t.test_getBranchPoints();
 //        t.test_pickVal();
 //        t.test_fruit_remover();
     }
