@@ -76,14 +76,15 @@ public class Tester {
 
     public void test_getBranchPoints(){
         Input input = fs.readInput();
-        ArrayList<Point> points = fs.getBranchPoints(input.board, input.size);
+        ArrayList<Point> points = fs.getChildren(input.board, input.size);
         Integer i;
         System.out.println(points);
     }
 
-    public void test_alpha_beta(){
+    public void test_gravity(){
         Input input = fs.readInput();
-        fs.alpha_beta(input, 1);
+        fs.gravity(input.board, input.size);
+        fs.printBoard(input.board, input.size);
     }
 
     // not properly written
@@ -95,10 +96,18 @@ public class Tester {
         System.out.println(ans.toString() + " " + p1.toString() + " " + p2.toString());
     }
 
+    public void test_alpha_beta(){
+        Input input = fs.readInput();
+        Point p = fs.alpha_beta(input, 20);
+//        System.out.println(p);
+    }
+
     public static void main(String[] args){
         Tester t = new Tester();
-//        t.test_checkIfConnected();
         t.test_alpha_beta();
+//        t.test_gravity();
+//        t.test_checkIfConnected();
+//        t.test_alpha_beta();
 //        t.test_getBranchPoints();
 //        t.test_pickVal();
 //        t.test_fruit_remover();

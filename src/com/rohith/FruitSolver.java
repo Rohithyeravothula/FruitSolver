@@ -25,7 +25,7 @@ class PointScore{
     Integer score;
     Point point;
     public PointScore(Integer score, Point point){
-        this.score = score;
+        this.score = score; // this in a state will be a difference in scores of min and max player
         this.point = point;
     }
 
@@ -52,6 +52,12 @@ class PointScore{
 
     @Override
     public String toString(){
+        if(point == null && score == null)
+            return "";
+        if(point == null)
+            return "score: " + score.toString() + " ()";
+        if(score == null)
+            return "( " + point.toString() + " )";
         return "score: " + score.toString() + " " + point.toString();
     }
 }
@@ -70,11 +76,13 @@ class Input{
 
 public class FruitSolver {
 
+    static Integer emptyFruit = -1;
+
 
     public Input readInput(){
         Stream<String> rawData;
         List<String> data;
-        String cur;
+        String cur, val;
         Integer size, fruits, j, i;
         Integer [][] board;
         Double time;
@@ -89,7 +97,12 @@ public class FruitSolver {
             for(i = 0; i<size; i++){
                 cur = data.remove(0);
                 for(j=0; j<size; j++){
-                    board[i][j] = Integer.parseInt(String.valueOf(cur.charAt(j)));
+                    val = String.valueOf(cur.charAt(j));
+                    if(val.equals("*"))
+                        board[i][j] = -1;
+                    else{
+                        board[i][j] = Integer.parseInt(val);
+                    }
                 }
             }
             return new Input(board, size, fruits, time);
@@ -104,14 +117,15 @@ public class FruitSolver {
         Integer i, j;
         for(i=0;i<size;i++){
             for(j=0;j<size;j++){
-                if(board[i][j] != -1)
-                    System.out.print(board[i][j]);
-                else
+                if(board[i][j] == -1)
                     System.out.print("*");
+                else
+                    System.out.print(board[i][j]);
                 System.out.print(" ");
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     public void printBoard(Integer [] board, Integer size){
@@ -144,8 +158,35 @@ public class FruitSolver {
         }
     }
 
+    // applies gravity, has side effect
+    public void gravity(Integer [][] board, Integer size){
+        Integer i, j, k=0;
+        Integer [] valid = new Integer[size];
+        for(j=0;j<size;j++){
+            //for each row
+            for(i=0;i<size;i++){
+                //ToDo: check if you have changed this to +1
+                if(board[i][j] != emptyFruit){
+                    valid[k] = board[i][j];
+                    k++;
+                }
+            }
+            i=size-1;
+            while(i>=0 && k>0){
+                k--;
+                board[i][j] = valid[k];
+                i--;
+            }
+            while(i>=0){
+                board[i][j] = emptyFruit;  //ToDo: check this also to make it -1
+                i--;
+            }
+        }
+    }
+
     public void removeFruit(Integer [][] board, Point point, Integer size){
         removeFruitRecr(board, point, board[point.x][point.y], size);
+        gravity(board, size);
     }
 
     public Integer [][] deepcopy(Integer [][] board, Integer size){
@@ -212,12 +253,14 @@ public class FruitSolver {
     //has no side effects on board
     public Integer pointVal(Integer [][] board, Integer size, Point point){
         Integer [][] visited = zeroBoard(size);
+        if(board[point.x][point.y] == -1)
+            return 0;
         return pointValRecr(board, visited, size, point, board[point.x][point.y]);
     }
 
 
     //function to assign value to a given board, doesn't have side effect
-    public Integer eval(Integer [][] board, Integer size){
+    public Integer boardValue(Integer [][] board, Integer size){
         Integer i, j, max=0, cur;
         Point maxPoint = new Point(0, 0); // ToDo: look if you can initialize like this
         for(i=0;i<size;i++){
@@ -232,7 +275,12 @@ public class FruitSolver {
         return max;
     }
 
-    public ArrayList<Point> getBranchPoints(Integer board[][], Integer size){
+    public Integer utility(Integer [][] board, Integer size){
+        return 0;
+        //ToDo: implement this function
+    }
+
+    public ArrayList<Point> getChildren(Integer board[][], Integer size){
 
         Integer i, j, curCount, prev, l;
         ArrayList<Point> uniquePoints = new ArrayList<>(), points = new ArrayList<>();
@@ -241,6 +289,7 @@ public class FruitSolver {
         if(size < 0){
             for(i=0;i<size;i++)
                 for(j=0;j<size;j++)
+                    if(board[i][j] != -1)
                     points.add(new Point(i, j));
             return points;
         }
@@ -254,6 +303,7 @@ public class FruitSolver {
             curCount=1;
             while(j<size){
                 if(board[i][j] != prev){
+                    if(board[i][j-1] != -1) // ensure -1 is not added
                     pointVal.put(new Point(i, j-1), curCount);
                     curCount = 0;
                     prev = board[i][j];
@@ -261,6 +311,7 @@ public class FruitSolver {
                 j++;
                 curCount++;
             }
+            if(board[i][j-1] != -1) // ensure -1 is not added
             pointVal.put(new Point(i, j-1), curCount);
             points.addAll(takeTop(pointVal));
         }
@@ -273,6 +324,7 @@ public class FruitSolver {
             curCount = 1;
             while (j<size){
                 if(board[j][i] != prev){
+                    if(board[i][j-1] != -1) // ensure -1 is not added
                     pointVal.put(new Point(j-1, i), curCount);
                     curCount = 0;
                     prev = board[j][i];
@@ -280,16 +332,18 @@ public class FruitSolver {
                 j++;
                 curCount++;
             }
+            if(board[i][j-1] != -1) // ensure -1 is not added
             pointVal.put(new Point(j-1, i), curCount);
             points.addAll(takeTop(pointVal));
         }
 
         l = points.size();
 //        System.out.println(points);
+
+
         for(i=0;i<l;i++){
             Boolean con = true;
             for(j=i+1;j<l;j++){
-//                System.out.println(points.get(i).toString() +" " + points.get(j).toString() + " " + checkIfConnected(board, size, points.get(i), points.get(j)).toString());
                 if(checkIfConnected(board, size, points.get(i), points.get(j))){
                     con = false;
                 }
@@ -322,85 +376,96 @@ public class FruitSolver {
 
     public ArrayList<Point> takeTop(HashMap<Point, Integer> pointVal){
         ArrayList<Point> list = sortMap(pointVal);
+        if(list.size() > 2)
         list.subList(0, 1); //taking top 2
         return list;
     }
 
+    public PointScore minNode(Integer [][] board, Integer size, Integer depth, Integer curScore, Integer alpha, Integer beta){
+        if(depth == 0)
+            return new PointScore(curScore+utility(board, size), null);
 
-    /**
-     * @param turn return max node for +1, and min node for -1
-     */
-    private PointScore abPruning(Integer [][] board, Integer size, Integer depth, Integer alpha, Integer beta, Integer turn){
-
-        ArrayList<Point> children = getBranchPoints(board, size);
-
-        System.out.println("Evaluating at depth " + depth.toString());
-        printBoard(board, size);
-        System.out.println("alpha " + alpha.toString() + " beta " + beta.toString());
-        System.out.println("children for current node");
-        System.out.println(children);
-
-        Point point;
-        PointScore status, curStatus;
-        HashMap<Point, Integer> scoreInfo = new HashMap<>();
-        Integer i, j, s, l = children.size();
+        ArrayList<Point> children = getChildren(board, size);
+        Integer i, s, cCount = children.size(), bestScore = Integer.MAX_VALUE;
+        PointScore v = new PointScore(Integer.MAX_VALUE, null);
         Integer [][] newBoard;
+        Point point;
 
-        for(i=0;i<l;i++){
+        // this qualifies terminal condition
+        if(cCount == 1){
+            return new PointScore(curScore + utility(board, size), children.get(0));
+        }
+
+
+        for(i=0;i<cCount;i++){
             point = children.get(i);
             s = pointVal(board, size, point);
-            scoreInfo.put(point, s);
-        }
+            newBoard = deepcopy(board, size);
+            removeFruit(newBoard, point, size);
 
-        printPointMap(scoreInfo);
-
-
-        children = sortMap(scoreInfo); // ordered children with descending eval value
-
-        if(turn == 1) {
-            if (depth == 0) {
-                point = children.get(0);
-                return new PointScore(scoreInfo.get(point), point);
-            } else {
-                curStatus = new PointScore(Integer.MIN_VALUE, null);
-                for (i = 0; i < l; i++) {
-                    newBoard = deepcopy(board, size);
-                    removeFruit(newBoard, children.get(i), size);
-                    status = abPruning(newBoard, size, depth-1, alpha, beta, turn*-1);
-                    curStatus = PointScore.max(curStatus, status);
-                    if(curStatus.score >= beta){
-                        return curStatus;
-                    }
-                    alpha = Math.max(curStatus.score, alpha);
-                }
-                return curStatus;
+            v = PointScore.min(v, maxNode(newBoard, size, depth-1, curScore-s, alpha, beta));
+            if(v.score < bestScore){
+                bestScore = v.score;
+                v.point = point;
             }
-        }
 
-        else {
-            if (depth == 0) {
-                point = children.get(children.size()-1);
-                return new PointScore(scoreInfo.get(point), point);
-            } else {
-                curStatus = new PointScore(Integer.MAX_VALUE, null);
-                // check in reverse order
-                for (i = l-1; i >= 0; i--) {
-                    newBoard = deepcopy(board, size);
-                    removeFruit(newBoard, children.get(i), size);
-                    status = abPruning(newBoard, size, depth-1, alpha, beta, turn*-1);
-                    curStatus = PointScore.min(curStatus, status);
-                    if(curStatus.score <= alpha)
-                        return curStatus;
-                    beta = Math.min(beta, curStatus.score);
-                }
-                return curStatus;
-            }
+            if(v.score <= alpha)
+                return v;
+            beta = Integer.min(v.score, beta);
         }
+        return v;
     }
 
-    public void alpha_beta(Input input, Integer depth){
-        PointScore decision = abPruning(input.board, input.size, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
-        System.out.println(decision);
+    public PointScore maxNode(Integer [][] board, Integer size, Integer depth, Integer curScore, Integer alpha, Integer beta){
+        // terminal check may include no branches from here on
+        if(depth == 0)
+            return new PointScore(curScore+ utility(board,size), null);
+
+        ArrayList<Point> children = getChildren(board, size);
+        Integer i, s, cCount = children.size(), bestScore = Integer.MIN_VALUE;
+        PointScore v = new PointScore(Integer.MIN_VALUE, null);
+        Integer [][] newBoard;
+        Point point;
+
+        // this qualifies terminal condition
+        if(cCount == 1){
+            return new PointScore(curScore + utility(board, size), children.get(0));
+        }
+
+        for(i=0;i<cCount;i++){
+            point = children.get(i);
+            s = pointVal(board, size, point); // current move score
+            newBoard = deepcopy(board, size);
+            removeFruit(newBoard, point, size);
+
+            v = PointScore.max(v, minNode(newBoard, size, depth-1, curScore+s, alpha, beta));
+            // to ensure the point is copied in case of yielding best score
+            if(v.score > bestScore){
+               bestScore = v.score;
+               v.point = point;
+            }
+
+            if(v.score >= beta){
+                return v;
+            }
+            alpha = Integer.max(alpha, v.score);
+        }
+        return v;
+    }
+
+    public Point alpha_beta(Input input, Integer depth){
+        PointScore p = maxNode(input.board, input.size, depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        System.out.println(p);
+        return p.point;
+    }
+
+    public void alpha_beta_iterative(Input input){
+        Integer depth = 1, depthLimit = 4;
+        Point p;
+        while(depth < depthLimit){
+            p = alpha_beta(input, depth);
+            depth++;
+        }
     }
 
 }
