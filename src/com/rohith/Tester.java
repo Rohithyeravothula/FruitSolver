@@ -98,7 +98,7 @@ public class Tester {
 
     public void test_alpha_beta(){
         Input input = fs.readInput();
-        Point p = fs.alpha_beta(input, 20);
+        Point p = fs.alpha_beta(input, 2);
 //        System.out.println(p);
     }
 

@@ -1,5 +1,6 @@
 package com.rohith;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -111,6 +112,30 @@ public class FruitSolver {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void writeOutput(Point p, Integer [][] board, Integer size) throws IOException {
+        removeFruit(board, p, size);
+        String firstLine = String.valueOf((char)((int)'A' + p.y)) + p.x.toString() + "\n";
+        String curDir = System.getProperty("user.dir");
+        FileWriter writer = new FileWriter(curDir + "/data/output.txt");
+//        System.out.println(firstLine);
+        Integer i, j;
+        StringBuilder boardString = new StringBuilder(firstLine);
+        for(i=0;i<size;i++){
+            StringBuilder cur = new StringBuilder("");
+            for(j=0;j<size;j++){
+                if(board[i][j] == -1)
+                    cur.append("*");
+                else
+                    cur.append(String.valueOf(board[i][j]));
+            }
+            cur.append("\n");
+            boardString.append(cur);
+        }
+        boardString.setLength(boardString.length() - 1);
+        writer.write(boardString.toString());
+        writer.close();
     }
 
     public void printBoard(Integer [][] board, Integer size){
@@ -456,6 +481,11 @@ public class FruitSolver {
     public Point alpha_beta(Input input, Integer depth){
         PointScore p = maxNode(input.board, input.size, depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
         System.out.println(p);
+        try{
+            writeOutput(p.point, input.board, input.size);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
         return p.point;
     }
 
