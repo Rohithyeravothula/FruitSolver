@@ -48,4 +48,4 @@ def tests():
 	while t<10:
 		generate_test(n, f)
 
-generate_test(26, 3, "tests/output.txt")
+generate_test(26, 9, "tests/output.txt")

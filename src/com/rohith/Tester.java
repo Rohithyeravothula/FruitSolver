@@ -22,7 +22,7 @@ public class Tester {
         Double time;
         try{
             String curDir = System.getProperty("user.dir");
-            rawData = Files.lines(Paths.get(curDir + "/data/test.txt"));
+            rawData = Files.lines(Paths.get(curDir + "/data/input.txt"));
             data = rawData.collect(Collectors.toList());
             while(!data.isEmpty()){
                 size = Integer.parseInt(data.remove(0));
@@ -103,7 +103,6 @@ public class Tester {
         Integer i1,j1, i2, j2,c=0;
         Random ran = new Random();
         while(c<100000000){
-//            System.out.println("asfd");
             c+=1;
             i1=ran.nextInt(input.size);
             j1=ran.nextInt(input.size);
@@ -117,14 +116,20 @@ public class Tester {
     public void test_alpha_beta(){
         Input input = fs.readInput();
         Long start = System.currentTimeMillis();
-        Point p = fs.alpha_beta(input, 3);
-        System.out.println("total time " + (System.currentTimeMillis() - start)/1000);
+        Point p = fs.alpha_beta(input, 6);
+        System.out.println("total time " + (System.currentTimeMillis() - start)/1000.0);
 //        System.out.println(p);
+    }
+
+    public void test_zeroboard(){
+        int board[][] = new int[4][4];
+//        System.out.println(board[0]);
+//        fs.printBoard(board, 4);
     }
 
     public static void main(String[] args){
         Tester t = new Tester();
-        t.time_est_checkIfConnected();
+//        t.time_est_checkIfConnected();
 //        t.test_getChildren();
 //        t.test_alpha_beta();
 //        t.test_gravity();
@@ -132,5 +137,6 @@ public class Tester {
 //        t.test_alpha_beta();
 //        t.test_pickVal();
 //        t.test_fruit_remover();
+        t.test_zeroboard();
     }
 }
