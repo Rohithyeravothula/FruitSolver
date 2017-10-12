@@ -78,6 +78,7 @@ class Input{
 public class FruitSolver {
 
     static Integer emptyFruit = -1;
+    static Integer children_size_threshold = 5;
 
 
     public Input readInput(){
@@ -240,25 +241,24 @@ public class FruitSolver {
 
     private Boolean checkIfConnectedPoints(Integer [][] board, Integer [][] visited, Integer size, Point p1, Point p2){
 
-        Integer x = p1.x, y = p1.y;
 //        System.out.println(p1);
 
+        if(p1.x == p2.x && p1.y == p2.y)
+            return true;
+
+        Integer x = p1.x, y = p1.y;
         if(x >= 0 && x < size && y >= 0 && y < size && visited[p1.x][p1.y] == 0){
             if(board[p1.x][p1.y] != board[p2.x][p2.y])
                 return false;
 
-            if(p1.x == p2.x && p1.y == p2.y)
-                return true;
-
-            visited[p1.x][p1.y] = 1;
+            visited[x][y] = 1;
 
             return  checkIfConnectedPoints(board, visited, size, new Point(x+1, y), p2) ||
-                    checkIfConnectedPoints(board, visited, size, new Point(x-1, y), p2) ||
                     checkIfConnectedPoints(board, visited, size, new Point(x, y+1), p2) ||
+                    checkIfConnectedPoints(board, visited, size, new Point(x-1, y), p2) ||
                     checkIfConnectedPoints(board, visited, size, new Point(x, y-1), p2);
         }
         return false;
-
     }
 
     public Boolean checkIfConnected(Integer [][] board, Integer size, Point p1, Point p2){
@@ -308,10 +308,10 @@ public class FruitSolver {
     public ArrayList<Point> getChildren(Integer board[][], Integer size){
 
         Integer i, j, curCount, prev, l;
-        ArrayList<Point> uniquePoints = new ArrayList<>(), points = new ArrayList<>();
+        ArrayList<Point> points = new ArrayList<>();
 
         // return all points if size is less then threshold
-        if(size < 0){
+        if(size < children_size_threshold){
             for(i=0;i<size;i++)
                 for(j=0;j<size;j++)
                     if(board[i][j] != -1)
@@ -338,7 +338,9 @@ public class FruitSolver {
             }
             if(board[i][j-1] != -1) // ensure -1 is not added
             pointVal.put(new Point(i, j-1), curCount);
+//            System.out.println("total points" + pointVal.size());
             points.addAll(takeTop(pointVal));
+//            System.out.println("total after operation" + pp.size());
         }
 
         //col wise max
@@ -361,11 +363,14 @@ public class FruitSolver {
             pointVal.put(new Point(j-1, i), curCount);
             points.addAll(takeTop(pointVal));
         }
+        //ToDo: time profile checkifconnected and see if this makes sense here
+        return removeDuplicates(points, board, size);
+    }
 
-        l = points.size();
+    public ArrayList<Point> removeDuplicates(ArrayList<Point> points, Integer [][] board, Integer size){
 //        System.out.println(points);
-
-
+        Integer i, j, l=points.size();;
+        ArrayList<Point> uniquePoints = new ArrayList<>();
         for(i=0;i<l;i++){
             Boolean con = true;
             for(j=i+1;j<l;j++){
@@ -376,7 +381,6 @@ public class FruitSolver {
             if(con)
                 uniquePoints.add(points.get(i));
         }
-        //ToDo: remove duplicates
         return uniquePoints;
     }
 
@@ -402,8 +406,9 @@ public class FruitSolver {
     public ArrayList<Point> takeTop(HashMap<Point, Integer> pointVal){
         ArrayList<Point> list = sortMap(pointVal);
         if(list.size() > 2)
-        list.subList(0, 1); //taking top 2
-        return list;
+            return new ArrayList<>(list.subList(0, 2)); //taking top 2
+        else
+            return list;
     }
 
     public PointScore minNode(Integer [][] board, Integer size, Integer depth, Integer curScore, Integer alpha, Integer beta){

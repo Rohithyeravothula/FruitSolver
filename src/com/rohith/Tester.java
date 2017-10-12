@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,7 +75,7 @@ public class Tester {
         }
     }
 
-    public void test_getBranchPoints(){
+    public void test_getChildren(){
         Input input = fs.readInput();
         ArrayList<Point> points = fs.getChildren(input.board, input.size);
         Integer i;
@@ -96,19 +97,39 @@ public class Tester {
         System.out.println(ans.toString() + " " + p1.toString() + " " + p2.toString());
     }
 
+    public void time_est_checkIfConnected(){
+        Input input = fs.readInput();
+        Long start = System.currentTimeMillis();
+        Integer i1,j1, i2, j2,c=0;
+        Random ran = new Random();
+        while(c<100000000){
+//            System.out.println("asfd");
+            c+=1;
+            i1=ran.nextInt(input.size);
+            j1=ran.nextInt(input.size);
+            i2=ran.nextInt(input.size);
+            j2=ran.nextInt(input.size);
+            fs.checkIfConnected(input.board, input.size, new Point(i1, j1), new Point(i2, j2));
+        }
+        System.out.println("total : " + (System.currentTimeMillis() - start)/1000.0);
+    }
+
     public void test_alpha_beta(){
         Input input = fs.readInput();
-        Point p = fs.alpha_beta(input, 2);
+        Long start = System.currentTimeMillis();
+        Point p = fs.alpha_beta(input, 3);
+        System.out.println("total time " + (System.currentTimeMillis() - start)/1000);
 //        System.out.println(p);
     }
 
     public static void main(String[] args){
         Tester t = new Tester();
-        t.test_alpha_beta();
+        t.time_est_checkIfConnected();
+//        t.test_getChildren();
+//        t.test_alpha_beta();
 //        t.test_gravity();
 //        t.test_checkIfConnected();
 //        t.test_alpha_beta();
-//        t.test_getBranchPoints();
 //        t.test_pickVal();
 //        t.test_fruit_remover();
     }
