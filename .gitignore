@@ -1,3 +1,6 @@
 .idea
-.class
+*.class
 out
+data/*.txt
+data/playground/*.txt
+data/tests/*.txt

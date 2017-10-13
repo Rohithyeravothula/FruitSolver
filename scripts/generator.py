@@ -48,4 +48,8 @@ def tests():
 	while t<10:
 		generate_test(n, f)
 
-generate_test(26, 9, "tests/output.txt")
+import sys
+if __name__ == '__main__':
+	n=sys.argv[1]
+	f=sys.argv[2]
+	generate_test(n, f, "tests/output.txt")

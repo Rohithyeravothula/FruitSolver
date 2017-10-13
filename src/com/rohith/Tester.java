@@ -130,7 +130,7 @@ public class Tester {
     public static void main(String[] args){
         Tester t = new Tester();
 //        t.time_est_checkIfConnected();
-//        t.test_getChildren();
+        t.test_getChildren();
 //        t.test_alpha_beta();
 //        t.test_gravity();
 //        t.test_checkIfConnected();

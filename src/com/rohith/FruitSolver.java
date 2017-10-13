@@ -291,9 +291,11 @@ public class FruitSolver {
     //has no side effects on board
     public Integer pointVal(Integer [][] board, Integer size, Point point){
         Integer [][] visited = zeroBoard(size);
+        Integer f;
         if(board[point.x][point.y] == -1)
             return 0;
-        return pointValRecr(board, visited, size, point, board[point.x][point.y]);
+        f = pointValRecr(board, visited, size, point, board[point.x][point.y]);
+        return f*f;
     }
 
 
@@ -352,6 +354,7 @@ public class FruitSolver {
 
             HashMap<Point, Integer> pointVal;
             //row wise max
+
             for(i=0;i<size;i++){
                 j=1;
                 prev = board[i][j-1];
@@ -369,9 +372,7 @@ public class FruitSolver {
                 }
                 if(board[i][j-1] != -1) // ensure -1 is not added
                     pointVal.put(new Point(i, j-1), curCount);
-//            System.out.println("total points" + pointVal.size());
                 points.addAll(takeTop(pointVal));
-//            System.out.println("total after operation" + pp.size());
             }
 
             //col wise max
@@ -382,7 +383,7 @@ public class FruitSolver {
                 curCount = 1;
                 while (j<size){
                     if(board[j][i] != prev){
-                        if(board[i][j-1] != -1) // ensure -1 is not added
+                        if(board[j-1][i] != -1) // ensure -1 is not added
                             pointVal.put(new Point(j-1, i), curCount);
                         curCount = 0;
                         prev = board[j][i];
@@ -390,11 +391,17 @@ public class FruitSolver {
                     j++;
                     curCount++;
                 }
-                if(board[i][j-1] != -1) // ensure -1 is not added
+                if(board[j-1][i] != -1) // ensure -1 is not added
                     pointVal.put(new Point(j-1, i), curCount);
                 points.addAll(takeTop(pointVal));
             }
         }
+
+//        System.out.println(points);
+//        for(Point p: points){
+//            System.out.println(p.toString() + board[p.x][p.y].toString());
+//        }
+
 
         //ToDo: time profile checkifconnected and see if this makes sense here
         return removeDuplicates(points, board, size);
@@ -403,17 +410,22 @@ public class FruitSolver {
 
     public ArrayList<Point> removeDuplicates(ArrayList<Point> points, Integer [][] board, Integer size){
 //        System.out.println(points);
-        Integer i, j, l=points.size();;
+        Integer i, j, l=points.size();
+        Point p1, p2;
         ArrayList<Point> uniquePoints = new ArrayList<>();
         for(i=0;i<l;i++){
             Boolean con = true;
             for(j=i+1;j<l;j++){
-                if(checkIfConnected(board, size, points.get(i), points.get(j))){
+                p1 = points.get(i);
+                p2 = points.get(j);
+                if(p1.x == p2.x && p1.y == p2.y){
                     con = false;
+//                    System.out.println(p1.toString() +  p2.toString());
+                    break;
                 }
             }
             if(con)
-                uniquePoints.add(points.get(i));
+            uniquePoints.add(points.get(i));
         }
         return uniquePoints;
     }
@@ -485,8 +497,10 @@ public class FruitSolver {
                 v.point = point;
             }
 
-            if(v.score <= alpha)
+            if(v.score <= alpha){
+//                System.out.println("pruned");
                 return v;
+            }
             beta = Integer.min(v.score, beta);
         }
         return v;
@@ -526,6 +540,7 @@ public class FruitSolver {
             }
 
             if(v.score >= beta){
+//                System.out.println("pruned");
                 return v;
             }
             alpha = Integer.max(alpha, v.score);
@@ -537,7 +552,10 @@ public class FruitSolver {
 
     public Point alpha_beta(Input input, Integer depth){
         PointScore p = maxNode(input.board, input.size, input.fruits, depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
         System.out.println(p);
+        System.out.println(pointVal(input.board, input.size, p.point));
+//        System.out.println(input.board[p.point.x][p.point.y]);
         try{
             writeOutput(p.point, input.board, input.size);
         } catch (IOException e){
@@ -560,7 +578,7 @@ public class FruitSolver {
     public static void main(String [] args){
         FruitSolver fs = new FruitSolver();
         Input input = fs.readInput();
-        fs.alpha_beta(input, 2);
+        fs.alpha_beta(input, 3);
     }
 
 }
