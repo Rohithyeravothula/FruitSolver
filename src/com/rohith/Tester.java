@@ -127,10 +127,17 @@ public class Tester {
 //        fs.printBoard(board, 4);
     }
 
+    public void test_utility(){
+        Input input = fs.readInput();
+        Integer ans = fs.utility(input.board, input.size, true);
+        System.out.println(ans);
+    }
+
     public static void main(String[] args){
         Tester t = new Tester();
+//        t.test_utility();
 //        t.time_est_checkIfConnected();
-        t.test_getChildren();
+//        t.test_getChildren();
 //        t.test_alpha_beta();
 //        t.test_gravity();
 //        t.test_checkIfConnected();

@@ -315,8 +315,34 @@ public class FruitSolver {
         return max;
     }
 
+    public Integer utility(Integer [][] board, Integer size, Boolean maxTurn) {
+        Integer[][] visited = new Integer[size][size];
+        Integer i, j, max1C=0, max2C=0, current;
+
+        for (i = 0; i < size; i++)
+            for (j = 0; j < size; j++)
+                visited[i][j] = 0;
+
+        for (i = 0; i < size; i++) {
+            for (j = 0; j < size; j++) {
+                current = pointValRecr(board, visited, size, new Point(i, j), board[i][j]);
+                if (current > max1C) {
+                    max2C = max1C;
+                    max1C = current;
+                } else if (current <= max1C && current > max2C)
+                    max2C = current;
+            }
+        }
+
+        if (maxTurn) {
+            return max1C * max1C - max2C * max2C;
+        } else {
+            return max2C * max2C - max1C * max1C;
+        }
+    }
+
     public Integer utility(Integer [][] board, Integer size, Integer fruits, Boolean maxTurn){
-        Integer [] counts = new Integer[10]; //ToDo: check if always fruits are given in order
+        Integer [] counts = new Integer[10];
         Integer i, j;
         for(i=0;i<10;i++)
             counts[i]=0;
@@ -327,12 +353,14 @@ public class FruitSolver {
                     counts[board[i][j]] += 1;
                 }
 
+//        System.out.println(Arrays.toString(counts));
+
         Arrays.sort(counts, Collections.reverseOrder());
         if(maxTurn){
-            return counts[0]-counts[1];
+            return (counts[0]*counts[0]) - (counts[1] * counts[1]);
         }
         else{
-            return counts[1]-counts[0];
+            return (counts[1] * counts[1] ) - (counts[0] * counts[0]);
         }
         //ToDo: discuss the possible outcomes for this implementaiton
     }
@@ -402,10 +430,7 @@ public class FruitSolver {
 //            System.out.println(p.toString() + board[p.x][p.y].toString());
 //        }
 
-
-        //ToDo: time profile checkifconnected and see if this makes sense here
         return removeDuplicates(points, board, size);
-//        return points;
     }
 
     public ArrayList<Point> removeDuplicates(ArrayList<Point> points, Integer [][] board, Integer size){
@@ -552,25 +577,22 @@ public class FruitSolver {
 
     public Point alpha_beta(Input input, Integer depth){
         PointScore p = maxNode(input.board, input.size, input.fruits, depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-
-        System.out.println(p);
-        System.out.println(pointVal(input.board, input.size, p.point));
-//        System.out.println(input.board[p.point.x][p.point.y]);
-        try{
-            writeOutput(p.point, input.board, input.size);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
+//        System.out.println(p);
+//        System.out.println(pointVal(input.board, input.size, p.point));
         return p.point;
     }
 
-    public void alpha_beta_iterative(Input input){
-        Integer depth = 1, depthLimit = 4;
-        Point p;
-        while(depth < depthLimit){
-            p = alpha_beta(input, depth);
-            depth++;
-        }
+    public Point alpha_beta_iterative(Input input){
+//        Integer depth = 2, depthLimit = 2; //loop will never be true
+        Point p = alpha_beta(input, 3);
+        System.out.println("point " + p.toString() + " score: " + pointVal(input.board, input.size, p));
+//        while(depth < depthLimit){
+//            p = alpha_beta(input, depth);
+////            printBoard(input.board, input.size);
+//            System.out.println("depth " + depth.toString() + " " + p.toString());
+//            depth++;
+//        }
+        return p;
     }
 
 
@@ -578,7 +600,19 @@ public class FruitSolver {
     public static void main(String [] args){
         FruitSolver fs = new FruitSolver();
         Input input = fs.readInput();
-        fs.alpha_beta(input, 3);
+        Point ans = fs.alpha_beta_iterative(input);
+        System.out.println(input.board[ans.x][ans.y]);
+        try{
+            fs.writeOutput(ans, input.board, input.size);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
 }
+
+//ToDo: check for small test cases
+//ToDo: discuss and implement iterative deepening
+//ToDo: calibrate script
+//ToDo: rule based mining for depth value
+//ToDo: use slots/fruits ratio information
