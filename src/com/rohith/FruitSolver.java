@@ -325,12 +325,14 @@ public class FruitSolver {
 
         for (i = 0; i < size; i++) {
             for (j = 0; j < size; j++) {
-                current = pointValRecr(board, visited, size, new Point(i, j), board[i][j]);
-                if (current > max1C) {
-                    max2C = max1C;
-                    max1C = current;
-                } else if (current <= max1C && current > max2C)
-                    max2C = current;
+                if(board[i][j] != -1){
+                    current = pointValRecr(board, visited, size, new Point(i, j), board[i][j]);
+                    if (current > max1C) {
+                        max2C = max1C;
+                        max1C = current;
+                    } else if (current <= max1C && current > max2C)
+                        max2C = current;
+                }
             }
         }
 
