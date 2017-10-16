@@ -92,29 +92,22 @@ public class FruitSolver {
 
 
     public Integer getBenchmark(Integer size, Integer fruits, Double time, ArrayList<ArrayList<Integer>> information){
-        Integer infoSize = information.size(), i = 0, j;
-
-//        if()
-
+        Integer infoSize = information.size(), i = 0, j, k;
         //ToDo: check if you change information order, (size, fruits, depth, time)
 
-        //move down till we find size less then benchmark size
         while(i<infoSize && size > information.get(i).get(0))
             i++;
-//        if(i>0)
-//            i--;//move back to prev one
 
         //move down till we find proper benchmark depth with size locked
         while(i<infoSize && fruits > information.get(i).get(1))
             i++;
-//        if(i>0)
-//            i--; //move back to prev one
 
         j=4*((i/4)+1);
+        k=i;
         while(i<j && time >= information.get(i).get(3))
             i++;
 
-        if(i>0)
+        if(i>k) // check if we moved ahead
             i--;
 
         if(i>=0 && i<infoSize)
@@ -125,18 +118,30 @@ public class FruitSolver {
 
 
     public Integer getDepth(Input input){
-
-        if(input.time < 1)
+        if(input.time < 2)
             return 0; // random move
 
-        if(input.time > 200 && input.size < 10)
+        if(input.time < 5)
+            return 1;
+
+        if(input.time < 10 && input.size >= 20)
+            return 1;
+
+        if(input.time > 280 && input.size > 20)
+            return 3;
+
+        if(input.time >= 100 && input.size <= 8)
+            return 6;
+
+        if(input.time >= 150 && input.size > 8) //&& input.size <= 13
             return 5;
 
-        if(input.time > 30 && input.size < 10)
+        if(input.time > 250 && input.size > 13) //&& input.size <= 20
             return 4;
 
-        if(input.time < 10 && input.size > 20)
-            return 1;
+        if(input.time >= 30 && input.size <= 10)
+            return 4;
+
 
         ArrayList<ArrayList<Integer>> information = readBenchmarks();
 
@@ -147,16 +152,25 @@ public class FruitSolver {
         if(input.time > 200 && input.size < 20 && remStpsLowBound < 10)
             return 4;
 
-        if(boardFruits < 100 && input.time > 30)
+        if(input.time > 50 && boardFruits < 100)
             return 4;
 
-        if(input.time < 10 && remStpsLowBound > 20)
+        if(input.time < 10 && remStpsLowBound >= 25)
             return 1;
 
-        if(input.time < 10 && remStpsLowBound < 20)
+        if(input.time < 10 && remStpsLowBound < 10)
             return 2;
 
-        return getBenchmark(input.size, input.fruits, input.time, information);
+        //ToDo: the 1.3 ratio is a rough bound, experiment and change this
+        Double perStepTime = input.time/(1.4*remStpsLowBound);
+
+        if(perStepTime < 0.1 && input.time < 10)
+            return 0; //less then 0.1 sec per step, may need random now.
+
+        if(perStepTime < 1)
+            perStepTime = 1.0; // rounding off to 1 sec
+
+        return getBenchmark(input.size, input.fruits, perStepTime, information);
     }
 
     public void printBoard(Integer [][] board, Integer size){
@@ -388,6 +402,16 @@ public class FruitSolver {
         }
         return false;
     }
+
+//    public ArrayList<Point> sortPoints(ArrayList<Point> points){
+//        points.sort(new Comparator<Point>() {
+//            @Override
+//            public int compare(Point point, Point t1) {
+//                return point.x.compareTo(t1.x)
+//            }
+//        });
+//        return points;
+//    }
 
     //has no side effects on board
     public Integer pointVal(Integer [][] board, Integer size, Point point){
@@ -683,8 +707,14 @@ public class FruitSolver {
         Input input = fs.readInput();
         Integer depth = fs.getDepth(input);
         System.out.println("estimated depth: " + depth);
-        Point ans = fs.alpha_beta(input, depth);
-//        System.out.println(ans);
+        Point ans;
+        if(depth == 0){
+            ans = fs.fastNode(input.board, input.size, input.size).point;
+        }
+        else{
+            ans = fs.alpha_beta(input, depth);
+        }
+
         try{
             fs.writeOutput(ans, input.board, input.size);
         } catch (IOException e){
