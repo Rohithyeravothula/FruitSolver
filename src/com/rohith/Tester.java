@@ -3,9 +3,7 @@ package com.rohith;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,6 +42,21 @@ public class Tester {
             e.printStackTrace();
         }
         return null;
+    }
+    public void printBoard(Integer [] board, Integer size){
+        Integer i;
+        for(i = 0; i<size;i++)
+            System.out.print(board[i].toString() + " ");
+        System.out.println();
+    }
+
+    public void printPointMap(HashMap<Point, Integer> pointVal){
+        Iterator<Map.Entry<Point, Integer>> e  = pointVal.entrySet().iterator();
+        while (e.hasNext()){
+            Map.Entry<Point, Integer> p = e.next();
+            System.out.print("(" + p.getKey().x.toString() + ", " + p.getKey().y.toString() + "):" + p.getValue() + " ");
+        }
+        System.out.println();
     }
 
     public void main_test(){
@@ -133,8 +146,40 @@ public class Tester {
         System.out.println(ans);
     }
 
-    public static void main(String[] args){
+    public void test_fastNode(){
+        Input input = fs.readInput();
+        PointScore p =  fs.fastNode(input.board, input.size, input.fruits);
+        System.out.println(p);
+    }
+
+    public void test_greedyNode(){
+        Input input = fs.readInput();
+        PointScore p = fs.greedyNode(input.board, input.size, input.fruits);
+        System.out.println(p);
+    }
+
+    public void test_readBenchmarks() throws IOException {
+        ArrayList<ArrayList<Integer>> info = fs.readBenchmarks();
+        for(ArrayList<Integer> i: info){
+            System.out.println(i.toString());
+        }
+    }
+
+    public void test_getBenchmark(){
+        ArrayList<ArrayList<Integer>> information = fs.readBenchmarks();
+        Integer i,j,k;
+        for(i=1;i<26;i++)
+            for(j=1;j<10;j++)
+                for(k=1;k<10;k++)
+                    System.out.println("size: " + i + " fruits: " + j + " time: " + k + " depth: " + fs.getBenchmark(i, j, k*1.0,information));
+
+//        System.out.println(fs.getBenchmark(25,9,1.0,information));
+    }
+
+    public static void main(String[] args) throws IOException {
         Tester t = new Tester();
+        t.test_getBenchmark();
+//        t.test_readBenchmarks();
 //        t.test_utility();
 //        t.time_est_checkIfConnected();
 //        t.test_getChildren();
@@ -144,6 +189,8 @@ public class Tester {
 //        t.test_alpha_beta();
 //        t.test_pickVal();
 //        t.test_fruit_remover();
-        t.test_zeroboard();
+//        t.test_zeroboard();
+//        t.test_fastNode();
+//        t.test_greedyNode();
     }
 }

@@ -21,9 +21,7 @@ dif=$(echo "$end" - "$start" | bc)
 head -n3 data/input.txt
 head -n3 data/input.txt > data/temp.txt
 threhsold=300
-
-cat data/input.txt > oldInput.txt
-
+count=0
 while [ $(bc <<< "$dif <= $threhsold") -eq 1 ]
 do
 	localStart=$(date +%s.%N)
@@ -40,8 +38,10 @@ do
 	dif=$(echo "$end" - "$start" | bc)
 	localDif=$(echo "$end" - "$localStart" | bc)
 	# echo "iteration time: $localDif"
+ 	count=`expr $count + 1`
 done
 
 endTotal=$(date +%s.%N)
 difTotal=$(echo "$endTotal" - "$startTotal" | bc)
 echo "total time: $difTotal"
+echo "total steps: $count"
