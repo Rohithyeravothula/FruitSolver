@@ -1,6 +1,8 @@
 .idea
+trash
+scripts/playground/*.java
 *.class
 out
 data/*.txt
-data/playground/*.txt
+scripts/playground/*.txt
 data/tests/*.txt
