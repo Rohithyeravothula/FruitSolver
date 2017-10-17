@@ -604,11 +604,11 @@ class FruitSolver {
 
 }
 
-public class Calibrate {
+public class  Calibrate {
 
     String input10_2 = "10\n2\n12\n0021001000\n0012220101\n1000121001\n0111001101\n0010011121\n1011011001\n1110112021\n0111112010\n1112101000\n1000022221";
     String input10_6 = "10\n6\n12\n1312202011\n0212101424\n1201302110\n0310200200\n1221204322\n1110221101\n1100052221\n2150213034\n0412041034\n5260226542";
-    String input10_9 ="10\n9\n300\n3122018970\n7012151612\n0151402525\n0206414016\n2281901200\n0191002430\n1522510132\n2112006805\n1280221288\n3211322502";
+    String input10_9 = "10\n9\n300\n3122018970\n7012151612\n0151402525\n0206414016\n2281901200\n0191002430\n1522510132\n2112006805\n1280221288\n3211322502";
 
     String input15_2 = "15\n2\n12\n101011200111101\n112020111201101\n000201211010001\n221100100110000\n001000012201012\n011110001100121\n002010001102010\n200101011102111\n101111000211011\n010011112100010\n110010100011200\n001201121111101\n101001002110011\n210111011210110\n000100111011010";
     String input15_6 = "15\n6\n12\n221010004011102\n211102141020201\n322300052012003\n322021210121220\n312010114060162\n530212201325210\n122001414021015\n121064126515211\n003011230113510\n251100014132510\n202221212221112\n010051100205111\n241201100261021\n121010322212354\n005102121011202";
@@ -685,12 +685,15 @@ public class Calibrate {
             while(depth < 5){
                 Input input = cb.constructInput(strInput);
                 FruitSolver fs = new FruitSolver();
-                Long startTime = System.currentTimeMillis();
-                Point p = fs.alpha_beta(input, depth);
-                Long end =  (System.currentTimeMillis() - startTime)/1000 + 1;
-                String result = input.size + "," + input.fruits + "," + depth.toString() + "," + end.toString();
-                System.out.println(result);
-                information.add(result);
+                if(input.size < 26 || input.size >20 && depth < 4){
+                    System.out.println(input.size + ", " + input.fruits + ", " + depth);
+                    Long startTime = System.currentTimeMillis();
+                    Point p = fs.alpha_beta(input, depth);
+                    Long end =  (System.currentTimeMillis() - startTime)/1000 + 1;
+                    String result = input.size + "," + input.fruits + "," + depth.toString() + "," + end.toString();
+                    System.out.println(result);
+                    information.add(result);
+                }
                 depth++;
             }
         }

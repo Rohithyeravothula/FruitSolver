@@ -133,11 +133,14 @@ public class FruitSolver {
         if(input.time >= 100 && input.size <= 8)
             return 6;
 
-        if(input.time >= 150 && input.size > 8) //&& input.size <= 13
+        if(input.time >= 150 && input.size < 13)
             return 5;
 
-        if(input.time > 250 && input.size > 13) //&& input.size <= 20
+        if(input.time > 250 && input.size > 13 && input.size <= 20)
             return 4;
+
+        if(input.time > 150 && input.size <= 13)
+            return 3;
 
         if(input.time >= 30 && input.size <= 10)
             return 4;
