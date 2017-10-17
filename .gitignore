@@ -1,4 +1,7 @@
 .idea
+scripts/tests/output.txt
+scripts/playground/data/
+data/vocariumTestcases
 trash
 scripts/playground/*.java
 *.class
