@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -585,7 +586,7 @@ class FruitSolver {
         // change the fruit count, as it will give max fruits only
         input.fruits = fruitCount(input.board, input.size);
         PointScore p = maxNode(input.board, input.size, input.fruits, depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        System.out.println("score: " + pointVal(newBoard, input.size, p.point) + " " + p.point + " value: " + input.board[p.point.x][p.point.y]);
+//        System.out.println("score: " + pointVal(newBoard, input.size, p.point) + " " + p.point + " value: " + input.board[p.point.x][p.point.y]);
         return p.point;
     }
 
@@ -604,7 +605,7 @@ class FruitSolver {
 
 }
 
-public class  Calibrate {
+public class calibrate {
 
     String input10_2 = "10\n2\n12\n0021001000\n0012220101\n1000121001\n0111001101\n0010011121\n1011011001\n1110112021\n0111112010\n1112101000\n1000022221";
     String input10_6 = "10\n6\n12\n1312202011\n0212101424\n1201302110\n0310200200\n1221204322\n1110221101\n1100052221\n2150213034\n0412041034\n5260226542";
@@ -624,6 +625,9 @@ public class  Calibrate {
 
 
     ArrayList<String> inputs = new ArrayList<String>(Arrays.asList(input10_2, input10_6, input10_9, input15_2, input15_6, input15_9, input20_2, input20_6, input20_9, input26_2, input26_6, input26_9));
+
+    ArrayList<String> information = new ArrayList<>();
+    Long timeLimit = 285L;
 
     public Input constructInput(String input) {
         List<String> data;
@@ -666,7 +670,7 @@ public class  Calibrate {
 
     public void writeBenchmarks(ArrayList<String> information) throws IOException {
         String curDir = System.getProperty("user.dir");
-        FileWriter writer = new FileWriter(curDir + "/data/benchmarks.txt");
+        FileWriter writer = new FileWriter(curDir + "/calibration.txt");
         StringBuilder infoString = new StringBuilder();
         for(String s: information){
             infoString.append(s + "\n");
@@ -675,32 +679,66 @@ public class  Calibrate {
         writer.close();
     }
 
-    public static void main(String [] args) {
-        ArrayList<String> information = new ArrayList<>();
-        Calibrate cb = new Calibrate();
+    public ArrayList<String> getBenchmarks() {
         Integer depth;
 
-        for(String strInput: cb.inputs){
+        for(String strInput: inputs){
             depth = 1;
             while(depth < 5){
-                Input input = cb.constructInput(strInput);
+                Input input = constructInput(strInput);
                 FruitSolver fs = new FruitSolver();
                 if(input.size < 26 || input.size >20 && depth < 4){
-                    System.out.println(input.size + ", " + input.fruits + ", " + depth);
+//                    System.out.println(input.size + ", " + input.fruits + ", " + depth);
                     Long startTime = System.currentTimeMillis();
                     Point p = fs.alpha_beta(input, depth);
                     Long end =  (System.currentTimeMillis() - startTime)/1000 + 1;
                     String result = input.size + "," + input.fruits + "," + depth.toString() + "," + end.toString();
-                    System.out.println(result);
+//                    System.out.println(result);
                     information.add(result);
                 }
                 depth++;
             }
         }
+        return information;
+    }
+
+    public static void main(String[] args) throws Exception {
+        calibrate cb = new calibrate();
         try{
-            cb.writeBenchmarks(information);
-        } catch (IOException e){
+            calibrate.runTimeout(cb::getBenchmarks, cb.timeLimit);
+        } catch (Exception e){
             e.printStackTrace();
+        }
+
+        try{
+            cb.writeBenchmarks(cb.information);
+            System.exit(0);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void runTimeout(final Runnable runnable, long timeout) throws Exception {
+        timeout(() -> {
+            runnable.run();
+            return null;
+        }, timeout);
+
+    }
+
+    public static <T> T timeout(Callable<T> callable, long time) throws Exception {
+        final ExecutorService executorService = Executors.newSingleThreadExecutor();
+        final Future<T> future = executorService.submit(callable);
+        try{
+            return future.get(time, TimeUnit.SECONDS);
+        } catch (TimeoutException te){
+            future.cancel(true);
+            executorService.shutdown();
+            throw te;
+        } catch (ExecutionException e){
+            e.printStackTrace();
+            throw e;
         }
     }
 }

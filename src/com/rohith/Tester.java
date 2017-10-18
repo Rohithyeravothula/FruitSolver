@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Tester {
-    FruitSolver fs = new FruitSolver();
+    homework fs = new homework();
 
     public ArrayList<Input> readTestInput(){
         ArrayList<Input> allInputs = new ArrayList<>();
@@ -167,13 +167,14 @@ public class Tester {
 
     public void test_getBenchmark(){
         ArrayList<ArrayList<Integer>> information = fs.readBenchmarks();
+        System.out.println(information.size());
         Integer i,j,k;
 //        for(i=1;i<26;i++)
 //            for(j=1;j<10;j++)
 //                for(k=1;k<10;k++)
 //                    System.out.println("size: " + i + " fruits: " + j + " time: " + k + " depth: " + fs.getBenchmark(i, j, k*1.0,information));
 
-        System.out.println(fs.getBenchmark(13,9,120.1,information));
+//        System.out.println(fs.getBenchmark(13,9,120.1,information));
     }
 
     public static void main(String[] args) throws IOException {

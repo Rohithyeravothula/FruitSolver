@@ -75,7 +75,7 @@ class Input{
     }
 }
 
-public class FruitSolver {
+public class homework {
 
     static Integer emptyFruit = -1;
     static Integer children_size_threshold = 5;
@@ -104,7 +104,7 @@ public class FruitSolver {
 
         j=4*((i/4)+1);
         k=i;
-        while(i<j && time >= information.get(i).get(3))
+        while(i<infoSize && i<j && time >= information.get(i).get(3))
             i++;
 
         if(i>k) // check if we moved ahead
@@ -113,7 +113,7 @@ public class FruitSolver {
         if(i>=0 && i<infoSize)
             return information.get(i).get(2);
         else
-            return 1;
+            return 2;
     }
 
 
@@ -127,6 +127,9 @@ public class FruitSolver {
         if(input.time < 10 && input.size >= 20)
             return 1;
 
+        if(input.time >= 30 && input.size <= 10)
+            return 4;
+
         if(input.time > 280 && input.size > 20)
             return 3;
 
@@ -137,12 +140,6 @@ public class FruitSolver {
             return 5;
 
         if(input.time > 250 && input.size > 13 && input.size <= 20)
-            return 4;
-
-        if(input.time > 150 && input.size <= 13)
-            return 3;
-
-        if(input.time >= 30 && input.size <= 10)
             return 4;
 
 
@@ -255,7 +252,7 @@ public class FruitSolver {
         Iterator<String> data;
         String str, curDir = System.getProperty("user.dir");
         try{
-            data = Files.lines(Paths.get(curDir + "/data/benchmarks.txt")).collect(Collectors.toList()).iterator();
+            data = Files.lines(Paths.get(curDir + "/calibration.txt")).collect(Collectors.toList()).iterator();
             while(data.hasNext()){
                 str=data.next();
                 ArrayList<Integer> tmp = new ArrayList<>();
@@ -264,10 +261,12 @@ public class FruitSolver {
                 }
                 information.add(tmp);
             }
+//            System.out.println(information.size());
             return information;
         } catch (IOException e){
-            e.printStackTrace();
-            return null;
+//            e.printStackTrace();
+            System.out.println("unable to read calibration.txt, have you run calibration.java ?");
+            return new ArrayList<>();
         }
     }
 
@@ -700,16 +699,16 @@ public class FruitSolver {
         // change the fruit count, as it will give max fruits only
 //        input.fruits = fruitCount(input.board, input.size);
         PointScore p = maxNode(input.board, input.size, input.fruits, depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        System.out.println("score: " + pointVal(newBoard, input.size, p.point) + " " + p.point + " value: " + input.board[p.point.x][p.point.y]);
+//        System.out.println("score: " + pointVal(newBoard, input.size, p.point) + " " + p.point + " value: " + input.board[p.point.x][p.point.y]);
         return p.point;
     }
 
     //ToDo: add time check, return random in case of any unforeseen failures
     public static void main(String [] args){
-        FruitSolver fs = new FruitSolver();
+        homework fs = new homework();
         Input input = fs.readInput();
         Integer depth = fs.getDepth(input);
-        System.out.println("estimated depth: " + depth);
+//        System.out.println("estimated depth: " + depth);
         Point ans;
         if(depth == 0){
             ans = fs.fastNode(input.board, input.size, input.size).point;
@@ -728,7 +727,3 @@ public class FruitSolver {
 }
 
 //ToDo: check for small test cases
-//ToDo: discuss and implement iterative deepening
-//ToDo: calibrate script
-//ToDo: rule based mining for depth value
-//ToDo: use slots/fruits ratio information
